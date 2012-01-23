@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.IO;
+using System.Text;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Common;
@@ -85,6 +86,19 @@ namespace NzbDrone.Test.Common
         protected string ReadTestFile(string fileName)
         {
             return File.ReadAllText(GetTestFilePath(fileName));
+        }
+
+
+        protected string GetLongText(int multiple)
+        {
+            var longString = new StringBuilder();
+
+            for (int i = 0; i < 150; i++)
+            {
+                longString.Append("Some random overview text.");
+            }
+
+            return longString.ToString();
         }
     }
 }

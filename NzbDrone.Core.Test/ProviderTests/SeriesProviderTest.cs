@@ -40,10 +40,32 @@ namespace NzbDrone.Core.Test.ProviderTests
             //Assert
             var series = seriesProvider.GetAllSeries();
             series.Should().HaveCount(1);
-            Assert.AreEqual(path, series.First().Path);
-            Assert.AreEqual(tvDbId, series.First().SeriesId);
-            Assert.AreEqual(qualityProfileId, series.First().QualityProfileId);
+            series.First().Path.Should().Be(path);
+            series.First().SeriesId.Should().Be(tvDbId);
+            series.First().QualityProfileId.Should().Be(qualityProfileId);
             series.First().SeasonFolder.Should().Be(useSeasonFolder);
+        }
+
+        [Test]
+        public void update_series_should_be_able_to_add_series_with_long_overview()
+        {
+            WithRealDb();
+
+            var longText = GetLongText(150);
+
+            var series = Builder<Series>.CreateNew()
+                .With(c => c.Overview = longText)
+                .With(c => c.Title = longText)
+                .With(c => c.Status = longText)
+                .With(c => c.Path = longText)
+                .Build();
+
+            Db.Insert(series);
+
+            var dbSeries = Db.Fetch<Series>();
+
+            dbSeries.Should().HaveCount(1);
+            dbSeries.First().Overview.Should().Be(longText);
         }
 
 
