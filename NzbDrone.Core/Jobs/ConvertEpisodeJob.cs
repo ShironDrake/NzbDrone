@@ -2,7 +2,7 @@
 using System;
 using Ninject;
 using NLog;
-using NzbDrone.Core.Model.Notification;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Converting;
 
@@ -35,21 +35,21 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromTicks(0); }
         }
 
-        public void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             if (targetId <= 0)
                 throw new ArgumentOutOfRangeException("targetId");
 
             var episode = _episodeProvider.GetEpisode(targetId);
-            notification.CurrentMessage = String.Format("Starting Conversion for {0}", episode);
-            var outputFile = _handbrakeProvider.ConvertFile(episode, notification);
+            NotificationHelper.SendNotification("Starting Conversion for {0}", episode);
+            var outputFile = _handbrakeProvider.ConvertFile(episode);
 
             if (String.IsNullOrEmpty(outputFile))
-                notification.CurrentMessage = String.Format("Conversion failed for {0}", episode);
+                NotificationHelper.SendNotification("Conversion failed for {0}", episode);
 
             _atomicParsleyProvider.RunAtomicParsley(episode, outputFile);
 
-            notification.CurrentMessage = String.Format("Conversion completed for {0}", episode);
+            NotificationHelper.SendNotification("Conversion completed for {0}", episode);
         }
     }
 }

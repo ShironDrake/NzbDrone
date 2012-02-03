@@ -160,7 +160,7 @@ namespace NzbDrone.Core.Test.JobTests
 
         private void StartUpdate()
         {
-            Mocker.Resolve<AppUpdateJob>().Start(MockNotification, 0, 0);
+            Mocker.Resolve<AppUpdateJob>().Start(0, 0);
         }
     }
 }

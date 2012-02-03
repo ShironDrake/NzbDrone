@@ -4,7 +4,7 @@ using System.Linq;
 using Ninject;
 using NLog;
 using NzbDrone.Common;
-using NzbDrone.Core.Model.Notification;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Core;
 using NzbDrone.Core.Repository;
@@ -45,7 +45,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromDays(30); }
         }
 
-        public virtual void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             Logger.Debug("Starting banner download job");
 
@@ -57,7 +57,7 @@ namespace NzbDrone.Core.Jobs
                 var series = _seriesProvider.GetSeries(targetId);
 
                 if (series != null && !String.IsNullOrEmpty(series.BannerUrl))
-                    DownloadBanner(notification, series);
+                    DownloadBanner(series);
 
                 return;
             }
@@ -66,27 +66,27 @@ namespace NzbDrone.Core.Jobs
 
             foreach (var series in seriesInDb.Where(s => !String.IsNullOrEmpty(s.BannerUrl)))
             {
-                DownloadBanner(notification, series);
+                DownloadBanner(series);
             }
 
             Logger.Debug("Finished banner download job");
         }
 
-        public virtual void DownloadBanner(ProgressNotification notification, Series series)
+        public virtual void DownloadBanner(Series series)
         {
             var bannerFilename = Path.Combine(_enviromentProvider.GetBannerPath(), series.SeriesId.ToString()) + ".jpg";
 
-            notification.CurrentMessage = string.Format("Downloading banner for '{0}'", series.Title);
+            NotificationHelper.SendNotification("Downloading banner for '{0}'", series.Title);
 
             try
             {
                 _httpProvider.DownloadFile(_bannerUrlPrefix + series.BannerUrl, bannerFilename);
-                notification.CurrentMessage = string.Format("Successfully download banner for '{0}'", series.Title);
+                NotificationHelper.SendNotification("Successfully download banner for '{0}'", series.Title);
             }
             catch (Exception)
             {
                 Logger.Debug("Failed to download banner for '{0}'", series.Title);
-                notification.CurrentMessage = string.Format("Failed to download banner for '{0}'", series.Title);
+                NotificationHelper.SendNotification("Failed to download banner for '{0}'", series.Title);
             }
         }
     }

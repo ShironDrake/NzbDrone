@@ -4,7 +4,6 @@ using System.Linq;
 using Ninject;
 using NLog;
 using NzbDrone.Core.Helpers;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Core;
 using NzbDrone.Core.Repository;
@@ -38,7 +37,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromHours(6); }
         }
 
-        public virtual void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             IList<Series> seriesToScan;
             if (targetId == 0)
@@ -54,9 +53,9 @@ namespace NzbDrone.Core.Jobs
             {
                 try
                 {
-                    notification.CurrentMessage = string.Format("Scanning disk for '{0}'", series.Title);
+                    NotificationHelper.SendNotification("Scanning disk for '{0}'", series.Title);
                     _diskScanProvider.Scan(series);
-                    notification.CurrentMessage = string.Format("Disk Scan completed for '{0}'", series.Title);
+                    NotificationHelper.SendNotification("Disk Scan completed for '{0}'", series.Title);
                 }
                 catch (Exception e)
                 {

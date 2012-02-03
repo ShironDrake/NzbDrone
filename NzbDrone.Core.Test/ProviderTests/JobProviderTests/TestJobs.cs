@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using NzbDrone.Core.Jobs;
-using NzbDrone.Core.Model.Notification;
 
 namespace NzbDrone.Core.Test.ProviderTests.JobProviderTests
 {
@@ -21,7 +20,7 @@ namespace NzbDrone.Core.Test.ProviderTests.JobProviderTests
 
         public int ExecutionCount { get; private set; }
 
-        public void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public void Start(int targetId, int secondaryTargetId)
         {
             ExecutionCount++;
             Console.WriteLine("Begin " + Name);

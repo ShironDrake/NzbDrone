@@ -8,8 +8,8 @@ using System.Linq;
 using System.Threading;
 using NLog;
 using Ninject;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Model;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Repository;
 using PetaPoco;
@@ -24,7 +24,6 @@ namespace NzbDrone.Core.Jobs
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IDatabase _database;
-        private readonly NotificationProvider _notificationProvider;
         private readonly IList<IJob> _jobs;
 
         private Thread _jobThread;
@@ -33,15 +32,11 @@ namespace NzbDrone.Core.Jobs
         private readonly object executionLock = new object();
         private readonly List<JobQueueItem> _queue = new List<JobQueueItem>();
 
-        private ProgressNotification _notification;
-
-
         [Inject]
-        public JobProvider(IDatabase database, NotificationProvider notificationProvider, IList<IJob> jobs)
+        public JobProvider(IDatabase database, IList<IJob> jobs)
         {
             StopWatch = new Stopwatch();
             _database = database;
-            _notificationProvider = notificationProvider;
             _jobs = jobs;
             ResetThread();
         }
@@ -260,38 +255,32 @@ namespace NzbDrone.Core.Jobs
 
             var settings = All().Where(j => j.TypeName == queueItem.JobType.ToString()).Single();
 
-            using (_notification = new ProgressNotification(jobImplementation.Name))
+            try
             {
-                try
-                {
-                    logger.Debug("Starting {0}. Last execution {1}", queueItem, settings.LastExecution);
+                logger.Debug("Starting {0}. Last execution {1}", queueItem, settings.LastExecution);
 
-                    var sw = Stopwatch.StartNew();
+                var sw = Stopwatch.StartNew();
 
-                    _notificationProvider.Register(_notification);
-                    jobImplementation.Start(_notification, queueItem.TargetId, queueItem.SecondaryTargetId);
-                    _notification.Status = ProgressNotificationStatus.Completed;
+                jobImplementation.Start(queueItem.TargetId, queueItem.SecondaryTargetId);
 
-                    settings.LastExecution = DateTime.Now;
-                    settings.Success = true;
+                settings.LastExecution = DateTime.Now;
+                settings.Success = true;
 
-                    sw.Stop();
-                    logger.Debug("Job {0} successfully completed in {1:0}.{2} seconds.", queueItem, sw.Elapsed.TotalSeconds, sw.Elapsed.Milliseconds / 100,
-                                 sw.Elapsed.Seconds);
-                }
-                catch (ThreadAbortException)
-                {
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    logger.ErrorException("An error has occurred while executing job [" + jobImplementation.Name + "].", e);
-                    _notification.Status = ProgressNotificationStatus.Failed;
-                    _notification.CurrentMessage = jobImplementation.Name + " Failed.";
+                sw.Stop();
+                logger.Debug("Job {0} successfully completed in {1:0}.{2} seconds.", queueItem, sw.Elapsed.TotalSeconds, sw.Elapsed.Milliseconds / 100,
+                                sw.Elapsed.Seconds);
+            }
+            catch (ThreadAbortException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                logger.ErrorException("An error has occurred while executing job [" + jobImplementation.Name + "].", e);
+                NotificationHelper.SendNotification(jobImplementation.Name + " Failed.");
 
-                    settings.LastExecution = DateTime.Now;
-                    settings.Success = false;
-                }
+                settings.LastExecution = DateTime.Now;
+                settings.Success = false;
             }
 
             //Only update last execution status if was triggered by the scheduler

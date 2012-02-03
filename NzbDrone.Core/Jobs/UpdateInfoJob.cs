@@ -4,7 +4,6 @@ using System.Linq;
 using NLog;
 using Ninject;
 using NzbDrone.Core.Helpers;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Repository;
 
@@ -41,7 +40,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromHours(12); }
         }
 
-        public virtual void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             IList<Series> seriesToUpdate;
             if (targetId == 0)
@@ -60,10 +59,10 @@ namespace NzbDrone.Core.Jobs
             {
                 try
                 {
-                    notification.CurrentMessage = "Updating " + series.Title;
+                    NotificationHelper.SendNotification("Updating {0}", series.Title);
                     _seriesProvider.UpdateSeriesInfo(series.SeriesId);
                     _episodeProvider.RefreshEpisodeInfo(series);
-                    notification.CurrentMessage = "Update completed for " + series.Title;
+                    NotificationHelper.SendNotification("Update completed for {0}", series.Title);
                 }
 
                 catch(Exception ex)

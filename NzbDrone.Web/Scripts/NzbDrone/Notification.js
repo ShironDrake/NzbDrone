@@ -57,10 +57,10 @@ var displayTime = 1200;
 
 $(function () {
     // Proxy created on the fly
-    var notificationProvider = $.connection.notificationProvider;
+    var notificationHelper = $.connection.notificationHelper;
 
     // Declare a function on the chat hub so the server can invoke it
-    notificationProvider.notify = function (message) {
+    notificationHelper.notify = function (message) {
         displayMsg(message);
     };
 

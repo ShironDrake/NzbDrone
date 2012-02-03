@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using NzbDrone.Core.Model;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Core;
 using NzbDrone.Core.Repository;
@@ -36,14 +35,14 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromDays(1); }
         }
 
-        public void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             var missingEpisodes = GetMissingForEnabledSeries();
 
             Logger.Debug("Processing missing episodes from the last 30 days, count: {0}", missingEpisodes.Count);
             foreach (var episode in missingEpisodes)
             {
-                _episodeSearchJob.Start(notification, episode.EpisodeId, 0);
+                _episodeSearchJob.Start(episode.EpisodeId, 0);
             }
         }
 

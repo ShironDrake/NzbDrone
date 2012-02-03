@@ -3,7 +3,6 @@ using System;
 using NLog;
 using Ninject;
 using NzbDrone.Common;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Core;
 
@@ -39,7 +38,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromMinutes(1); }
         }
 
-        public virtual void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             var dropFolder = _configProvider.SabDropDirectory;
 

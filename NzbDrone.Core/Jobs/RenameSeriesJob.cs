@@ -2,7 +2,7 @@ using System.Linq;
 using System;
 using NLog;
 using Ninject;
-using NzbDrone.Core.Model.Notification;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Providers;
 
 namespace NzbDrone.Core.Jobs
@@ -36,7 +36,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromTicks(0); }
         }
 
-        public void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             if (targetId <= 0)
                 throw new ArgumentOutOfRangeException("targetId");
@@ -60,7 +60,7 @@ namespace NzbDrone.Core.Jobs
             var message = String.Format("Renamed: Series {0}", series.Title);
             _externalNotificationProvider.AfterRename(message, series);
 
-            notification.CurrentMessage = String.Format("Series rename completed for Series: {0}", targetId);
+            NotificationHelper.SendNotification("Series rename completed for Series: {0}", targetId);
         }
     }
 }

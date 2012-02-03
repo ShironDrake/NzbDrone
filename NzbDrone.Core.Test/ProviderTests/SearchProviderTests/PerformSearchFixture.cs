@@ -170,7 +170,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
         public void PerformSearch_should_search_all_enabled_providers()
         {
             //Act
-            var result = Mocker.Resolve<SearchProvider>().PerformSearch(MockNotification, _series, SEASON_NUMBER, _episodes);
+            var result = Mocker.Resolve<SearchProvider>().PerformSearch(_series, SEASON_NUMBER, _episodes);
 
             //Assert
             VerifyFetchEpisode(Times.Once());
@@ -183,7 +183,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithSceneName();
 
             //Act
-            Mocker.Resolve<SearchProvider>().PerformSearch(MockNotification, _series, 1, _episodes);
+            Mocker.Resolve<SearchProvider>().PerformSearch(_series, 1, _episodes);
 
             //Assert
             Mocker.GetMock<SceneMappingProvider>().Verify(c => c.GetSceneName(_series.SeriesId),
@@ -197,7 +197,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithTwoGoodOneBrokenIndexer();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().PerformSearch(MockNotification, _series, SEASON_NUMBER, _episodes);
+            var result = Mocker.Resolve<SearchProvider>().PerformSearch(_series, SEASON_NUMBER, _episodes);
 
             //Assert
             result.Should().HaveCount(PARSE_RESULT_COUNT * 2);
@@ -215,7 +215,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
         public void PerformSearch_for_episode_should_call_FetchEpisode()
         {
             //Act
-            var result = Mocker.Resolve<SearchProvider>().PerformSearch(MockNotification, _series, SEASON_NUMBER, _episodes);
+            var result = Mocker.Resolve<SearchProvider>().PerformSearch(_series, SEASON_NUMBER, _episodes);
 
             //Assert
             result.Should().HaveCount(PARSE_RESULT_COUNT * 2);
@@ -230,7 +230,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             _series.IsDaily = true;
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().PerformSearch(MockNotification, _series, SEASON_NUMBER, _episodes);
+            var result = Mocker.Resolve<SearchProvider>().PerformSearch(_series, SEASON_NUMBER, _episodes);
 
             //Assert
             result.Should().HaveCount(PARSE_RESULT_COUNT * 2);
@@ -244,7 +244,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             With30Episodes();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().PerformSearch(MockNotification, _series, SEASON_NUMBER, _episodes);
+            var result = Mocker.Resolve<SearchProvider>().PerformSearch(_series, SEASON_NUMBER, _episodes);
 
             //Assert
             result.Should().HaveCount(80);
@@ -257,7 +257,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithNullEpisodes();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().PerformSearch(MockNotification, _series, SEASON_NUMBER, _episodes);
+            var result = Mocker.Resolve<SearchProvider>().PerformSearch(_series, SEASON_NUMBER, _episodes);
 
             //Assert
             result.Should().HaveCount(20);
@@ -271,7 +271,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithNullIndexers();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().PerformSearch(MockNotification, _series, SEASON_NUMBER, _episodes);
+            var result = Mocker.Resolve<SearchProvider>().PerformSearch(_series, SEASON_NUMBER, _episodes);
 
             //Assert
             result.Should().HaveCount(0);
@@ -283,7 +283,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
         {
             WithSceneName();
 
-            Mocker.Resolve<SearchProvider>().PerformSearch(MockNotification, _series, SEASON_NUMBER, _episodes);
+            Mocker.Resolve<SearchProvider>().PerformSearch(_series, SEASON_NUMBER, _episodes);
 
             VerifyFetchEpisodeWithSceneName(Times.Once());
         }

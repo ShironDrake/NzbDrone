@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using NLog;
-using NzbDrone.Core.Model.Notification;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Providers.Core;
 using NzbDrone.Core.Repository;
 
@@ -12,7 +12,6 @@ namespace NzbDrone.Core.Providers.Converting
     {
         //Interacts with Handbrake
         private readonly ConfigProvider _configProvider;
-        private ProgressNotification _notification;
         private Episode _currentEpisode;
 
         private Regex _processingRegex =
@@ -31,9 +30,8 @@ namespace NzbDrone.Core.Providers.Converting
             
         }
 
-        public virtual string ConvertFile(Episode episode, ProgressNotification notification)
+        public virtual string ConvertFile(Episode episode)
         {
-            _notification = notification;
             _currentEpisode = episode;
 
             var outputFile = _configProvider.GetValue("iPodConvertDir", "");
@@ -93,11 +91,11 @@ namespace NzbDrone.Core.Providers.Converting
             if (seconds > 0 || minutes > 0 || hours > 0)
             {
                 var eta = DateTime.Now.Add(new TimeSpan(0, hours, minutes, seconds));
-                _notification.CurrentMessage = String.Format("Converting: {0}, {1}%. ETA: {2}", episodeString, percent, eta);
+                NotificationHelper.SendNotification("Converting: {0}, {1}%. ETA: {2}", episodeString, percent, eta);
             }     
 
             else
-                _notification.CurrentMessage = String.Format("Converting: {0}, {1}%.", episodeString, percent);
+                NotificationHelper.SendNotification("Converting: {0}, {1}%.", episodeString, percent);
 
             Console.WriteLine(args.Data);
         }

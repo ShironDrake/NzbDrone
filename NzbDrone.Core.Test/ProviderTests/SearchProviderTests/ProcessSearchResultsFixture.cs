@@ -7,7 +7,6 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using NzbDrone.Core.Model;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Indexer;
 using NzbDrone.Core.Repository;
@@ -106,7 +105,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
                 .Returns(true);
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(new ProgressNotification("Test"), parseResults, _matchingSeries, 1, 1);
+            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(parseResults, _matchingSeries, 1, 1);
 
             //Assert
             result.Should().HaveCount(1);
@@ -132,7 +131,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithQualityNotNeeded();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(new ProgressNotification("Test"), parseResults, _matchingSeries, 1, 1);
+            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(parseResults, _matchingSeries, 1, 1);
 
             //Assert
             result.Should().HaveCount(0);
@@ -155,7 +154,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithNullSeries();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(new ProgressNotification("Test"), parseResults, _matchingSeries, 1, 1);
+            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(parseResults, _matchingSeries, 1, 1);
 
             //Assert
             result.Should().HaveCount(0);
@@ -176,7 +175,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithMisMatchedSeries();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(new ProgressNotification("Test"), parseResults, _matchingSeries, 1, 1);
+            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(parseResults, _matchingSeries, 1, 1);
 
             //Assert
             result.Should().HaveCount(0);
@@ -197,7 +196,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithMatchingSeries();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(new ProgressNotification("Test"), parseResults, _matchingSeries, 1, 1);
+            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(parseResults, _matchingSeries, 1, 1);
 
             //Assert
             result.Should().HaveCount(0);
@@ -218,7 +217,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithMatchingSeries();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(new ProgressNotification("Test"), parseResults, _matchingSeries, 1, 1);
+            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(parseResults, _matchingSeries, 1, 1);
 
             //Assert
             result.Should().HaveCount(0);
@@ -244,7 +243,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             WithSuccessfulDownload();
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(new ProgressNotification("Test"), parseResults, _matchingSeries, 1);
+            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(parseResults, _matchingSeries, 1);
 
             //Assert
             result.Should().HaveCount(1);
@@ -277,7 +276,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
                 .Returns(true);
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(new ProgressNotification("Test"), parseResults, _matchingSeries, 1);
+            var result = Mocker.Resolve<SearchProvider>().ProcessSearchResults(parseResults, _matchingSeries, 1);
 
             //Assert
             result.Should().HaveCount(1);

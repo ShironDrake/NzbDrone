@@ -6,7 +6,6 @@ using Moq;
 using NUnit.Framework;
 using NzbDrone.Common;
 using NzbDrone.Core.Jobs;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Core;
 using NzbDrone.Core.Repository;
@@ -33,8 +32,6 @@ namespace NzbDrone.Core.Test.JobTests
             var fakeSeries = Builder<Series>.CreateListOfSize(10)
                 .Build();
 
-            var notification = new ProgressNotification("Banner Download");
-
             Mocker.GetMock<SeriesProvider>()
                 .Setup(c => c.GetAllSeries())
                 .Returns(fakeSeries);
@@ -47,7 +44,7 @@ namespace NzbDrone.Core.Test.JobTests
                 .Returns("");
 
             //Act
-            Mocker.Resolve<BannerDownloadJob>().Start(notification, 0, 0);
+            Mocker.Resolve<BannerDownloadJob>().Start(0, 0);
 
             //Assert
             Mocker.VerifyAllMocks();
@@ -64,8 +61,6 @@ namespace NzbDrone.Core.Test.JobTests
                 .With(s => s.BannerUrl = null)
                 .Build();
 
-          var notification = new ProgressNotification("Banner Download");
-
             Mocker.GetMock<SeriesProvider>()
                 .Setup(c => c.GetAllSeries())
                 .Returns(fakeSeries);
@@ -78,7 +73,7 @@ namespace NzbDrone.Core.Test.JobTests
                 .Returns("");
 
             //Act
-            Mocker.Resolve<BannerDownloadJob>().Start(notification, 0, 0);
+            Mocker.Resolve<BannerDownloadJob>().Start(0, 0);
 
             //Assert
             Mocker.VerifyAllMocks();
@@ -95,8 +90,6 @@ namespace NzbDrone.Core.Test.JobTests
 
 
             var bannerPath = Mocker.GetMock<EnviromentProvider>().Object.GetBannerPath();
-
-            var notification = new ProgressNotification("Banner Download");
 
             Mocker.GetMock<SeriesProvider>()
                 .Setup(c => c.GetAllSeries())
@@ -121,7 +114,7 @@ namespace NzbDrone.Core.Test.JobTests
                 .Returns("");
 
             //Act
-            Mocker.Resolve<BannerDownloadJob>().Start(notification, 0, 0);
+            Mocker.Resolve<BannerDownloadJob>().Start(0, 0);
 
             //Assert
             Mocker.VerifyAllMocks();
@@ -136,8 +129,6 @@ namespace NzbDrone.Core.Test.JobTests
             var fakeSeries = Builder<Series>.CreateListOfSize(10)
                 .Build();
 
-            var notification = new ProgressNotification("Banner Download");
-
             Mocker.GetMock<SeriesProvider>()
                 .Setup(c => c.GetAllSeries())
                 .Returns(fakeSeries);
@@ -151,7 +142,7 @@ namespace NzbDrone.Core.Test.JobTests
                 .Returns("");
 
             //Act
-            Mocker.Resolve<BannerDownloadJob>().Start(notification, 0, 0);
+            Mocker.Resolve<BannerDownloadJob>().Start(0, 0);
 
             //Assert
             Mocker.VerifyAllMocks();
@@ -167,8 +158,6 @@ namespace NzbDrone.Core.Test.JobTests
                 .With(s => s.SeriesId = 1)
                 .Build();
 
-            var notification = new ProgressNotification("Banner Download");
-
             Mocker.GetMock<SeriesProvider>()
                 .Setup(c => c.GetSeries(1))
                 .Returns(fakeSeries);
@@ -182,7 +171,7 @@ namespace NzbDrone.Core.Test.JobTests
                 .Returns("");
 
             //Act
-            Mocker.Resolve<BannerDownloadJob>().Start(notification, 1, 0);
+            Mocker.Resolve<BannerDownloadJob>().Start(1, 0);
 
             //Assert
             Mocker.VerifyAllMocks();
@@ -198,14 +187,12 @@ namespace NzbDrone.Core.Test.JobTests
                 .With(s => s.SeriesId = 1)
                 .Build();
 
-            var notification = new ProgressNotification("Banner Download");
-
             Mocker.GetMock<HttpProvider>()
                 .Setup(s => s.DownloadFile(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new WebException());
 
             //Act
-            Mocker.Resolve<BannerDownloadJob>().DownloadBanner(notification, fakeSeries);
+            Mocker.Resolve<BannerDownloadJob>().DownloadBanner(fakeSeries);
 
             //Assert
             Mocker.VerifyAllMocks();

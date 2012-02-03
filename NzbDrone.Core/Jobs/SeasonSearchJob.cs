@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using NLog;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 
 namespace NzbDrone.Core.Jobs
@@ -37,7 +36,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromTicks(0); }
         }
 
-        public virtual void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             if (targetId <= 0)
                 throw new ArgumentOutOfRangeException("targetId");
@@ -45,7 +44,7 @@ namespace NzbDrone.Core.Jobs
             if (secondaryTargetId <= 0)
                 throw new ArgumentOutOfRangeException("secondaryTargetId");
 
-            if (_searchProvider.SeasonSearch(notification, targetId, secondaryTargetId))
+            if (_searchProvider.SeasonSearch(targetId, secondaryTargetId))
                 return;
 
             Logger.Debug("Getting episodes from database for series: {0} and season: {1}", targetId, secondaryTargetId);
@@ -58,7 +57,7 @@ namespace NzbDrone.Core.Jobs
             }
 
             //Perform a Partial Season Search
-            var addedSeries = _searchProvider.PartialSeasonSearch(notification, targetId, secondaryTargetId);
+            var addedSeries = _searchProvider.PartialSeasonSearch(targetId, secondaryTargetId);
 
             addedSeries.Distinct().ToList().Sort();
             var episodeNumbers = episodes.Where(w => w.AirDate <= DateTime.Today.AddDays(1)).Select(s => s.EpisodeNumber).ToList();
@@ -73,7 +72,7 @@ namespace NzbDrone.Core.Jobs
             //Only process episodes that is in missing episodes (To ensure we double check if the episode is available)
             foreach (var episode in episodes.Where(e => !e.Ignored && missingEpisodes.Contains(e.EpisodeNumber)).OrderBy(o => o.EpisodeNumber))
             {
-                _episodeSearchJob.Start(notification, episode.EpisodeId, 0);
+                _episodeSearchJob.Start(episode.EpisodeId, 0);
             }
         }
     }

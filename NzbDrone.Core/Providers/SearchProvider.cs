@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using Ninject;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Model;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Repository;
 
 namespace NzbDrone.Core.Providers
@@ -39,7 +39,7 @@ namespace NzbDrone.Core.Providers
         {
         }
 
-        public virtual bool SeasonSearch(ProgressNotification notification, int seriesId, int seasonNumber)
+        public virtual bool SeasonSearch(int seriesId, int seasonNumber)
         {
             var series = _seriesProvider.GetSeries(seriesId);
 
@@ -53,9 +53,9 @@ namespace NzbDrone.Core.Providers
             if (series.IsDaily)
                 return false;
 
-            notification.CurrentMessage = String.Format("Searching for {0} Season {1}", series.Title, seasonNumber);
+            NotificationHelper.SendNotification("Searching for {0} Season {1}", series.Title, seasonNumber);
 
-            var reports = PerformSearch(notification, series, seasonNumber);
+            var reports = PerformSearch(series, seasonNumber);
 
             Logger.Debug("Finished searching all indexers. Total {0}", reports.Count);
 
@@ -71,13 +71,13 @@ namespace NzbDrone.Core.Providers
                 return false;
             }
 
-            notification.CurrentMessage = "Processing search results";
+            NotificationHelper.SendNotification("Processing search results");
 
             reports.Where(p => p.FullSeason && p.SeasonNumber == seasonNumber).ToList().ForEach(
                 e => e.EpisodeNumbers = episodeNumbers.ToList()
                 );
 
-            var downloadedEpisodes = ProcessSearchResults(notification, reports, series, seasonNumber);
+            var downloadedEpisodes = ProcessSearchResults(reports, series, seasonNumber);
 
             downloadedEpisodes.Sort();
             episodeNumbers.ToList().Sort();
@@ -87,7 +87,7 @@ namespace NzbDrone.Core.Providers
             return (downloadedEpisodes.SequenceEqual(episodeNumbers));
         }
 
-        public virtual List<int> PartialSeasonSearch(ProgressNotification notification, int seriesId, int seasonNumber)
+        public virtual List<int> PartialSeasonSearch(int seriesId, int seasonNumber)
         {
             //This method will search for episodes in a season in groups of 10 episodes S01E0, S01E1, S01E2, etc 
 
@@ -103,23 +103,23 @@ namespace NzbDrone.Core.Providers
             if (series.IsDaily)
                 return new List<int>();
 
-            notification.CurrentMessage = String.Format("Searching for {0} Season {1}", series.Title, seasonNumber);
+            NotificationHelper.SendNotification("Searching for {0} Season {1}", series.Title, seasonNumber);
 
             var episodes = _episodeProvider.GetEpisodesBySeason(seriesId, seasonNumber);
 
-            var reports = PerformSearch(notification, series, seasonNumber, episodes);
+            var reports = PerformSearch(series, seasonNumber, episodes);
 
             Logger.Debug("Finished searching all indexers. Total {0}", reports.Count);
 
             if (reports.Count == 0)
                 return new List<int>();
 
-            notification.CurrentMessage = "Processing search results";
+            NotificationHelper.SendNotification("Processing search results");
 
-            return ProcessSearchResults(notification, reports, series, seasonNumber);
+            return ProcessSearchResults(reports, series, seasonNumber);
         }
 
-        public virtual bool EpisodeSearch(ProgressNotification notification, int episodeId)
+        public virtual bool EpisodeSearch(int episodeId)
         {
             var episode = _episodeProvider.GetEpisode(episodeId);
 
@@ -133,11 +133,11 @@ namespace NzbDrone.Core.Providers
             if (!_inventoryProvider.IsUpgradePossible(episode))
             {
                 Logger.Info("Search for {0} was aborted, file in disk meets or exceeds Profile's Cutoff", episode);
-                notification.CurrentMessage = String.Format("Skipping search for {0}, file you have is already at cutoff", episode);
+                NotificationHelper.SendNotification("Skipping search for {0}, file you have is already at cutoff", episode);
                 return false;
             }
 
-            notification.CurrentMessage = "Looking for " + episode;
+            NotificationHelper.SendNotification("Looking for " + episode);
 
             if (episode.Series.IsDaily && !episode.AirDate.HasValue)
             {
@@ -145,33 +145,33 @@ namespace NzbDrone.Core.Providers
                 return false;
             }
 
-            var reports = PerformSearch(notification, episode.Series, episode.SeasonNumber, new List<Episode> { episode });
+            var reports = PerformSearch(episode.Series, episode.SeasonNumber, new List<Episode> { episode });
 
             Logger.Debug("Finished searching all indexers. Total {0}", reports.Count);
-            notification.CurrentMessage = "Processing search results";
+            NotificationHelper.SendNotification("Processing search results");
 
-            if (!episode.Series.IsDaily && ProcessSearchResults(notification, reports, episode.Series, episode.SeasonNumber, episode.EpisodeNumber).Count == 1)
+            if (!episode.Series.IsDaily && ProcessSearchResults(reports, episode.Series, episode.SeasonNumber, episode.EpisodeNumber).Count == 1)
                 return true;
 
-            if (episode.Series.IsDaily && ProcessSearchResults(notification, reports, episode.Series, episode.AirDate.Value))
+            if (episode.Series.IsDaily && ProcessSearchResults(reports, episode.Series, episode.AirDate.Value))
                 return true;
 
             Logger.Warn("Unable to find {0} in any of indexers.", episode);
             
             if (reports.Any())
             {
-                notification.CurrentMessage = String.Format("Sorry, couldn't find {0} in a non-sucky quality. (by your standards)", episode);
+                NotificationHelper.SendNotification("Sorry, couldn't find {0} in a non-sucky quality. (by your standards)", episode);
             }
             else
             {
-                notification.CurrentMessage = String.Format("Sorry, couldn't find you {0} in any of indexers.", episode);
+                NotificationHelper.SendNotification("Sorry, couldn't find you {0} in any of indexers.", episode);
             }
 
 
             return false;
         }
 
-        public List<EpisodeParseResult> PerformSearch(ProgressNotification notification, Series series, int seasonNumber, IList<Episode> episodes = null)
+        public List<EpisodeParseResult> PerformSearch(Series series, int seasonNumber, IList<Episode> episodes = null)
         {
             //If single episode, do a single episode search, if full season then do a full season search, otherwise, do a partial search
 
@@ -224,7 +224,7 @@ namespace NzbDrone.Core.Providers
             return reports;
         }
 
-        public List<int> ProcessSearchResults(ProgressNotification notification, IEnumerable<EpisodeParseResult> reports, Series series, int seasonNumber, int? episodeNumber = null)
+        public List<int> ProcessSearchResults(IEnumerable<EpisodeParseResult> reports, Series series, int seasonNumber, int? episodeNumber = null)
         {
             var successes = new List<int>();
 
@@ -272,8 +272,7 @@ namespace NzbDrone.Core.Providers
                         {
                             if (_downloadProvider.DownloadReport(episodeParseResult))
                             {
-                                notification.CurrentMessage =
-                                        String.Format("{0} - S{1:00}E{2:00} {3} Added to download queue",
+                                NotificationHelper.SendNotification("{0} - S{1:00}E{2:00} {3} Added to download queue",
                                                       episodeParseResult.Series.Title, episodeParseResult.SeasonNumber,
                                                       episodeParseResult.EpisodeNumbers[0], episodeParseResult.Quality);
 
@@ -284,7 +283,7 @@ namespace NzbDrone.Core.Providers
                         catch (Exception e)
                         {
                             Logger.ErrorException("Unable to add report to download queue." + episodeParseResult, e);
-                            notification.CurrentMessage = String.Format("Unable to add report to download queue. {0}", episodeParseResult);
+                            NotificationHelper.SendNotification("Unable to add report to download queue. {0}", episodeParseResult);
                         }
                     }
                 }
@@ -297,7 +296,7 @@ namespace NzbDrone.Core.Providers
             return successes;
         }
 
-        public bool ProcessSearchResults(ProgressNotification notification, IEnumerable<EpisodeParseResult> reports, Series series, DateTime airDate)
+        public bool ProcessSearchResults(IEnumerable<EpisodeParseResult> reports, Series series, DateTime airDate)
         {
             foreach (var episodeParseResult in reports.OrderByDescending(c => c.Quality))
             {
@@ -323,9 +322,9 @@ namespace NzbDrone.Core.Providers
                         {
                             if (_downloadProvider.DownloadReport(episodeParseResult))
                             {
-                                notification.CurrentMessage =
+                                NotificationHelper.SendNotification(
                                         String.Format("{0} - {1} {2} Added to download queue",
-                                                      episodeParseResult.Series.Title, episodeParseResult.AirDate.Value.ToShortDateString(), episodeParseResult.Quality);
+                                                      episodeParseResult.Series.Title, episodeParseResult.AirDate.Value.ToShortDateString(), episodeParseResult.Quality));
 
                                 return true;
                             }
@@ -333,7 +332,7 @@ namespace NzbDrone.Core.Providers
                         catch (Exception e)
                         {
                             Logger.ErrorException("Unable to add report to download queue." + episodeParseResult, e);
-                            notification.CurrentMessage = String.Format("Unable to add report to download queue. {0}", episodeParseResult);
+                            NotificationHelper.SendNotification("Unable to add report to download queue. {0}", episodeParseResult);
                         }
                     }
                 }

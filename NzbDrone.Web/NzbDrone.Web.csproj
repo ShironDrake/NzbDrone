@@ -213,7 +213,6 @@
     <Compile Include="Controllers\AddSeriesController.cs" />
     <Compile Include="Controllers\MisnamedController.cs" />
     <Compile Include="Controllers\MissingController.cs" />
-    <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\SeriesController.cs" />
     <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Controllers\SharedController.cs" />

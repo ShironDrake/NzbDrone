@@ -5,7 +5,7 @@ using System.IO;
 using NLog;
 using Ninject;
 using NzbDrone.Common;
-using NzbDrone.Core.Model.Notification;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Core;
 
@@ -46,9 +46,9 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromDays(2); }
         }
 
-        public virtual void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
-            notification.CurrentMessage = "Checking for updates";
+            NotificationHelper.SendNotification("Checking for updates");
 
             var updatePackage = _updateProvider.GetAvilableUpdate();
 
@@ -65,17 +65,17 @@ namespace NzbDrone.Core.Jobs
             }
 
             logger.Info("Downloading update package from [{0}] to [{1}]", updatePackage.Url, packageDestination);
-            notification.CurrentMessage = "Downloading Update " + updatePackage.Version;
+            NotificationHelper.SendNotification("Downloading Update " + updatePackage.Version);
             _httpProvider.DownloadFile(updatePackage.Url, packageDestination);
             logger.Info("Download completed for update package from [{0}]", updatePackage.FileName);
 
             logger.Info("Extracting Update package");
-            notification.CurrentMessage = "Extracting Update";
+            NotificationHelper.SendNotification("Extracting Update");
             _archiveProvider.ExtractArchive(packageDestination, _enviromentProvider.GetUpdateSandboxFolder());
             logger.Info("Update package extracted successfully");
 
             logger.Info("Preparing client");
-            notification.CurrentMessage = "Preparing to start Update";
+            NotificationHelper.SendNotification("Preparing to start Update");
             _diskProvider.MoveDirectory(_enviromentProvider.GetUpdateClientFolder(), _enviromentProvider.GetUpdateSandboxFolder());
 
 
@@ -87,7 +87,7 @@ namespace NzbDrone.Core.Jobs
             };
 
             _processProvider.Start(startInfo);
-            notification.CurrentMessage = "Update in progress. NzbDrone will restart shortly.";
+            NotificationHelper.SendNotification("Update in progress. NzbDrone will restart shortly.");
         }
     }
 }

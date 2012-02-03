@@ -8,7 +8,6 @@ using Moq;
 using NUnit.Framework;
 using NzbDrone.Core.Jobs;
 using NzbDrone.Core.Model;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Core;
 using NzbDrone.Core.Repository;
@@ -41,10 +40,10 @@ namespace NzbDrone.Core.Test.JobTests
                 .Setup(s => s.EpisodesWithoutFiles(true)).Returns(episodes);
 
             //Act
-            Mocker.Resolve<RecentBacklogSearchJob>().Start(MockNotification, 0, 0);
+            Mocker.Resolve<RecentBacklogSearchJob>().Start(0, 0);
 
             //Assert
-            Mocker.GetMock<EpisodeSearchJob>().Verify(c => c.Start(MockNotification, It.IsAny<int>(), 0),
+            Mocker.GetMock<EpisodeSearchJob>().Verify(c => c.Start(It.IsAny<int>(), 0),
                                                        Times.Never());
         }
 
@@ -87,13 +86,13 @@ namespace NzbDrone.Core.Test.JobTests
             Mocker.GetMock<EpisodeProvider>()
                 .Setup(s => s.EpisodesWithoutFiles(true)).Returns(episodes);
 
-            Mocker.GetMock<EpisodeSearchJob>().Setup(c => c.Start(It.IsAny<ProgressNotification>(), It.IsAny<int>(), 0));
+            Mocker.GetMock<EpisodeSearchJob>().Setup(c => c.Start(It.IsAny<int>(), 0));
 
             //Act
-            Mocker.Resolve<RecentBacklogSearchJob>().Start(MockNotification, 0, 0);
+            Mocker.Resolve<RecentBacklogSearchJob>().Start(0, 0);
 
             //Assert
-            Mocker.GetMock<EpisodeSearchJob>().Verify(c => c.Start(It.IsAny<ProgressNotification>(), It.IsAny<int>(), 0),
+            Mocker.GetMock<EpisodeSearchJob>().Verify(c => c.Start(It.IsAny<int>(), 0),
                                                        Times.Exactly(40));
         }
 

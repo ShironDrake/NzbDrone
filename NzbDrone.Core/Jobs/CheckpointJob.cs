@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Ninject;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 
 namespace NzbDrone.Core.Jobs
@@ -31,7 +30,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromDays(1); }
         }
 
-        public void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             _analyticsProvider.Checkpoint();
         }

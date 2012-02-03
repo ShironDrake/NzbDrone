@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using NzbDrone.Common;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Test.Common;
 using PetaPoco;
 
@@ -49,15 +48,6 @@ namespace NzbDrone.Core.Test.Framework
         {
             _db = TestDbHelper.GetEmptyDatabase();
             Mocker.SetConstant(Db);
-        }
-
-
-        protected static ProgressNotification MockNotification
-        {
-            get
-            {
-                return new ProgressNotification("Mock notification");
-            }
         }
     }
 }

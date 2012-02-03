@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Ninject;
 using NLog;
-using NzbDrone.Core.Model.Notification;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Providers;
 
 namespace NzbDrone.Core.Jobs
@@ -49,13 +49,13 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromMinutes(1); }
         }
 
-        public void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             _attemptedSeries = new List<int>();
-            ScanSeries(notification);
+            ScanSeries();
         }
 
-        private void ScanSeries(ProgressNotification notification)
+        private void ScanSeries()
         {
             var syncList = _seriesProvider.GetAllSeries().Where(s => s.LastInfoSync == null && !_attemptedSeries.Contains(s.SeriesId)).ToList();
             if (syncList.Count == 0)
@@ -68,18 +68,18 @@ namespace NzbDrone.Core.Jobs
                 try
                 {
                     _attemptedSeries.Add(currentSeries.SeriesId);
-                    notification.CurrentMessage = String.Format("Searching for '{0}'", new DirectoryInfo(currentSeries.Path).Name);
+                    NotificationHelper.SendNotification("Searching for '{0}'", new DirectoryInfo(currentSeries.Path).Name);
 
-                    _updateInfoJob.Start(notification, currentSeries.SeriesId, 0);
-                    _diskScanJob.Start(notification, currentSeries.SeriesId, 0);
+                    _updateInfoJob.Start(currentSeries.SeriesId, 0);
+                    _diskScanJob.Start(currentSeries.SeriesId, 0);
 
                     var updatedSeries = _seriesProvider.GetSeries(currentSeries.SeriesId);
                     AutoIgnoreSeasons(updatedSeries.SeriesId);
 
                     //Download the banner for the new series
-                    _bannerDownloadJob.Start(notification, updatedSeries.SeriesId, 0);
+                    _bannerDownloadJob.Start(updatedSeries.SeriesId, 0);
 
-                    notification.CurrentMessage = String.Format("{0} was successfully imported", updatedSeries.Title);
+                    NotificationHelper.SendNotification("{0} was successfully imported", updatedSeries.Title);
                 }
 
                 catch (Exception e)
@@ -89,7 +89,7 @@ namespace NzbDrone.Core.Jobs
             }
 
             //Keep scanning until there no more shows left.
-            ScanSeries(notification);
+            ScanSeries();
         }
 
         public void AutoIgnoreSeasons(int seriesId)

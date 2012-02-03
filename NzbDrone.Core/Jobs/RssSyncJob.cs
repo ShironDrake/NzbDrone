@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Ninject;
 using NLog;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Model;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 using NzbDrone.Core.Providers.Indexer;
 
@@ -39,7 +39,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromMinutes(25); }
         }
 
-        public void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             var reports = new List<EpisodeParseResult>();
 
@@ -47,7 +47,7 @@ namespace NzbDrone.Core.Jobs
             {
                 try
                 {
-                    notification.CurrentMessage = "Fetching RSS from " + indexer.Name;
+                    NotificationHelper.SendNotification("Fetching RSS from {0}", indexer.Name);
                     reports.AddRange(indexer.FetchRss());
                 }
                 catch (Exception e)
@@ -57,7 +57,7 @@ namespace NzbDrone.Core.Jobs
             }
 
             Logger.Debug("Finished fetching reports from all indexers. Total {0}", reports.Count);
-            notification.CurrentMessage = "Processing downloaded RSS";
+            NotificationHelper.SendNotification("Processing downloaded RSS");
 
             foreach (var episodeParseResult in reports)
             {
@@ -74,7 +74,7 @@ namespace NzbDrone.Core.Jobs
                 }
             }
 
-            notification.CurrentMessage = "RSS Sync Completed";
+            NotificationHelper.SendNotification("RSS Sync Completed");
 
         }
     }

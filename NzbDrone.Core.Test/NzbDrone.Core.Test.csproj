@@ -115,7 +115,6 @@
     <Compile Include="ProviderTests\InventoryProviderTests\IsUpgradePossibleFixture.cs" />
     <Compile Include="ProviderTests\MediaFileProviderTests\CleanUpDatabaseFixture.cs" />
     <Compile Include="ProviderTests\ReferenceDataProviderTest.cs" />
-    <Compile Include="ProviderTests\NotificationProviderTests\NotificationProviderFixture.cs" />
     <Compile Include="ProviderTests\SabProviderTests\QueueFixture.cs" />
     <Compile Include="ProviderTests\SearchProviderTests\ProcessDailySearchResultsFixture.cs" />
     <Compile Include="ProviderTests\SearchProviderTests\SearchFixture.cs" />

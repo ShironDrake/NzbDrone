@@ -162,7 +162,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             Mocker.GetMock<SeriesProvider>().Setup(s => s.GetSeries(1)).Returns(_series);
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().SeasonSearch(MockNotification, _series.SeriesId, 1);
+            var result = Mocker.Resolve<SearchProvider>().SeasonSearch(_series.SeriesId, 1);
 
             //Assert
             result.Should().BeFalse();
@@ -177,7 +177,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
             Mocker.GetMock<SeriesProvider>().Setup(s => s.GetSeries(1)).Returns(_series);
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().PartialSeasonSearch(MockNotification, _series.SeriesId, 1);
+            var result = Mocker.Resolve<SearchProvider>().PartialSeasonSearch(_series.SeriesId, 1);
 
             //Assert
             result.Should().BeEmpty();
@@ -199,7 +199,7 @@ namespace NzbDrone.Core.Test.ProviderTests.SearchProviderTests
                 .Returns(episode);
 
             //Act
-            var result = Mocker.Resolve<SearchProvider>().EpisodeSearch(MockNotification, episode.EpisodeId);
+            var result = Mocker.Resolve<SearchProvider>().EpisodeSearch(episode.EpisodeId);
 
             //Assert
             result.Should().BeFalse();

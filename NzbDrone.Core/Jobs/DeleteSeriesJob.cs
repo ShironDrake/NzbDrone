@@ -2,7 +2,7 @@
 using System;
 using Ninject;
 using NLog;
-using NzbDrone.Core.Model.Notification;
+using NzbDrone.Core.Helpers;
 using NzbDrone.Core.Providers;
 
 namespace NzbDrone.Core.Jobs
@@ -29,12 +29,12 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromTicks(0); }
         }
 
-        public void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
-            DeleteSeries(notification, targetId);
+            DeleteSeries(targetId);
         }
 
-        private void DeleteSeries(ProgressNotification notification, int seriesId)
+        private void DeleteSeries(int seriesId)
         {
             Logger.Warn("Deleting Series [{0}]", seriesId);
 
@@ -42,11 +42,11 @@ namespace NzbDrone.Core.Jobs
             {
                 var title = _seriesProvider.GetSeries(seriesId).Title;
 
-                notification.CurrentMessage = String.Format("Deleting '{0}' from database", title);
+                NotificationHelper.SendNotification("Deleting '{0}' from database", title);
 
                 _seriesProvider.DeleteSeries(seriesId);
 
-                notification.CurrentMessage = String.Format("Successfully deleted '{0}' from database", title);
+                NotificationHelper.SendNotification("Successfully deleted '{0}' from database", title);
             }
             catch (Exception e)
             {

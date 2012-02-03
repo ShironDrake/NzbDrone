@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 
 namespace NzbDrone.Core.Jobs
@@ -29,7 +28,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromHours(12); }
         }
 
-        public virtual void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             _sceneNameMappingProvider.UpdateMappings();
         }

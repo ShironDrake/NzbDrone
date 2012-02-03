@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using NLog;
-using NzbDrone.Core.Model.Notification;
 using NzbDrone.Core.Providers;
 
 namespace NzbDrone.Core.Jobs
@@ -29,7 +28,7 @@ namespace NzbDrone.Core.Jobs
             get { return TimeSpan.FromTicks(0); }
         }
 
-        public void Start(ProgressNotification notification, int targetId, int secondaryTargetId)
+        public virtual void Start(int targetId, int secondaryTargetId)
         {
             if (targetId <= 0)
                 throw new ArgumentOutOfRangeException("targetId");
@@ -43,7 +42,7 @@ namespace NzbDrone.Core.Jobs
                 if (_episodeProvider.IsIgnored(targetId, season))
                     continue;
 
-                _seasonSearchJob.Start(notification, targetId, season);
+                _seasonSearchJob.Start(targetId, season);
             }
         }
     }

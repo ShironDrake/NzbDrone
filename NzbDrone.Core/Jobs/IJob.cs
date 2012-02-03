@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using NzbDrone.Core.Model.Notification;
 
 namespace NzbDrone.Core.Jobs
 {
@@ -28,6 +27,6 @@ namespace NzbDrone.Core.Jobs
         /// this object should be used to update the progress on the UI</param>
         /// <param name="targetId">The that should be used to limit the target of this job</param>
         /// /// <param name="secondaryTargetId">The that should be used to limit the target of this job</param>
-        void Start(ProgressNotification notification, int targetId, int secondaryTargetId);
+        void Start(int targetId, int secondaryTargetId);
     }
 }
