@@ -1,5 +1,7 @@
 using System;
 using NLog;
+using NzbDrone.Core.Providers;
+using SignalR.Hubs;
 
 namespace NzbDrone.Core.Model.Notification
 {
@@ -33,7 +35,11 @@ namespace NzbDrone.Core.Model.Notification
         ///   Gets or sets the current status of this task. this field could be use to show the currently processing item in a long running task.
         /// </summary>
         /// <value>The current status.</value>
-        public String CurrentMessage { get; set; }
+        public String CurrentMessage
+        {
+            get { return String.Empty; }
+            set { Hub.GetClients<NotificationProvider>().notify(value); }
+        }
 
         /// <summary>
         ///   Gets or sets the completion status in percent.

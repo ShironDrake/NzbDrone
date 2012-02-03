@@ -30,8 +30,10 @@
     @Html.IncludeScript("jquery.watermark.min.js")
     @Html.IncludeScript("jquery.hotkeys.js")
     @Html.IncludeScript("doTimeout.js")
+    @Html.IncludeScript("jquery.signalR.js")
     @Html.IncludeScript("NzbDrone/localSearch.js")
     @Html.IncludeScript("NzbDrone/AutoComplete.js")
+    <script src="@Url.Content("~/signalr/hubs")" type="text/javascript"></script>
     @Html.IncludeScript("NzbDrone/Notification.js")
     @Html.IncludeScript("NzbDrone/AutoBind.js")
     @Html.IncludeScript("NzbDrone/grid.js")

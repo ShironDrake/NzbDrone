@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using NzbDrone.Core.Model.Notification;
+using SignalR.Hubs;
 
 namespace NzbDrone.Core.Providers
 {
-    public class NotificationProvider
+    public class NotificationProvider : Hub
     {
         private static ProgressNotification _currentNotification;
 

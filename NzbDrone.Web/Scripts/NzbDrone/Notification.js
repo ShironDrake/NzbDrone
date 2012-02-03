@@ -1,5 +1,4 @@
-﻿
-(function ($) {
+﻿(function ($) {
 
     $.extend($.gritter.options, {
         fade_in_speed: 'medium', // how fast notifications fade in (string or int)
@@ -34,7 +33,7 @@
 
         jqXHR.error(function (xhr, textStatus, thrownError) {
             //ignore notification errors.
-            if (this.url.indexOf("/notification/Comet") !== 0) {
+            if (this.url.indexOf("/signalr") !== 0) {
                 alert("Status: " + textStatus + ", Error: " + thrownError);
                 $.gritter.add({
                     title: 'Request failed',
@@ -51,66 +50,57 @@
 
 } (jQuery));
 
+var speed = 700;
+var lastShown = 0;
+var isShown = false;
+var displayTime = 1200;
 
-$(window).load(function () {
-    var speed = 700;
-    var isShown = false;
-    var currentMessage = "";
+$(function () {
+    // Proxy created on the fly
+    var notificationProvider = $.connection.notificationProvider;
 
-    //workaround for the infinite browser load in chrome
-    if ($.browser.webkit) {
-        $.doTimeout(1000, refreshNotifications);
-    }
-    else {
-        refreshNotifications();
-    }
+    // Declare a function on the chat hub so the server can invoke it
+    notificationProvider.notify = function (message) {
+        displayMsg(message);
+    };
 
-    function refreshNotifications() {
-        $.ajax({
-            url: '/notification/Comet',
-            data: { message: currentMessage },
-            success: function (data) {
-                notificationCallback(data);
-            }
-        });
-    }
-
-    function notificationCallback(data) {
-        currentMessage = data;
-
-        if (data === "") {
-            closeMsg();
-        }
-        else {
-            displayMsg(data);
-        }
-
-        refreshNotifications();
-    }
-
-    //SetupNotifications();
-    function displayMsg(sMsg) {
-        //set the message text
-        $("#msgText").showHtml(sMsg, 150);
-
-        if (!isShown) {
-            $('#msgBox').show("slide", { direction: "right" }, speed / 2);
-        }
-
-        isShown = true;
-    }
-
-    function closeMsg() {
-        //hide the message      
-        if (isShown) {
-            $('#msgBox').hide("slide", { direction: "right" }, speed);
-            isShown = false;
-        }
-    }
+    // Start the connection
+    $.connection.hub.start();
 });
 
+function displayMsg(message) {
+    if (message === "") {
+        closeMsg();
+        return;
+    }
 
+    //set the message text
+    $("#msgText").showHtml(message, 150);
 
+    if (!isShown) {
+        $('#msgBox').show("slide", { direction: "right" }, speed / 2);
+    }
+
+    var dateTime = new Date();
+    lastShown = dateTime.getTime();
+    isShown = true;
+    $.doTimeout(displayTime, closeMsg);
+}
+
+function closeMsg() {
+    //hide the message
+    var dateTime = new Date();
+    var currentTime = dateTime.getTime();
+
+    if (currentTime - lastShown >= displayTime && isShown) {
+        $('#msgBox').hide("slide", { direction: "right" }, speed);
+        isShown = false;
+    }
+    
+    else {
+        $.doTimeout(displayTime, closeMsg);
+    }
+}
 
 // Animates the dimensional changes resulting from altering element contents
 // Usage examples: 
@@ -151,6 +141,4 @@ $(window).load(function () {
             });
         });
     };
-
-
 })(jQuery);
