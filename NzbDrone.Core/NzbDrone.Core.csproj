@@ -230,6 +230,9 @@
     <Compile Include="Helpers\SabnzbdQueueTimeConverter.cs" />
     <Compile Include="Jobs\CheckpointJob.cs" />
     <Compile Include="Model\DownloadClientType.cs" />
+    <Compile Include="Model\TvRage\TvRageEpisode.cs" />
+    <Compile Include="Model\TvRage\TvRageSeries.cs" />
+    <Compile Include="Model\TvRage\TvRageSearchResult.cs" />
     <Compile Include="Providers\AnalyticsProvider.cs" />
     <Compile Include="Instrumentation\LogDbContext.cs" />
     <Compile Include="Instrumentation\LogProvider.cs" />
@@ -259,6 +262,7 @@
     <Compile Include="Model\Xbmc\ErrorResult.cs" />
     <Compile Include="Model\Xbmc\IconType.cs" />
     <Compile Include="Providers\BackupProvider.cs" />
+    <Compile Include="Providers\TvRageProvider.cs" />
     <Compile Include="Providers\DecisionEngine\AlreadyInQueueSpecification.cs" />
     <Compile Include="Providers\DownloadClients\BlackholeProvider.cs" />
     <Compile Include="Providers\Converting\AtomicParsleyProvider.cs" />
