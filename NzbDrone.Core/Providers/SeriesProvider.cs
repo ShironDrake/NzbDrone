@@ -114,6 +114,7 @@ namespace NzbDrone.Core.Providers
             var repoSeries = new Series();
             repoSeries.SeriesId = tvDbSeriesId;
             repoSeries.Path = path;
+            repoSeries.AbsoluteNumbering = false;
             repoSeries.Monitored = true; //New shows should be monitored
             repoSeries.QualityProfileId = qualityProfileId;
             if (qualityProfileId == 0)

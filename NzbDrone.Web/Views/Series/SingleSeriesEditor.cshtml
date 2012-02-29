@@ -19,6 +19,10 @@
         <label class="labelClass">@Html.LabelFor(m => m.Monitored)
             <span class="small">@Html.DescriptionFor(m => m.Monitored)</span>
         </label>
+        @Html.CheckBoxFor(m => m.AbsoluteNumbering, new { @class = "inputClass checkClass" })
+        <label class="labelClass">@Html.LabelFor(m => m.AbsoluteNumbering)
+            <span class="small">@Html.DescriptionFor(m => m.AbsoluteNumbering)</span>
+        </label>
         @Html.CheckBoxFor(m => m.Monitored, new { @class = "inputClass checkClass" })
         <label class="labelClass">@Html.LabelFor(m => m.SeasonFolder)
             <span class="small">@Html.DescriptionFor(m => m.SeasonFolder)</span>

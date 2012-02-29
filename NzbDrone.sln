@@ -1,6 +1,10 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NzbDrone", "NzbDrone\NzbDrone.csproj", "{D12F7F2F-8A3C-415F-88FA-6DD061A84869}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FF5EE3B6-913B-47CE-9CEB-11C51B4E1205} = {FF5EE3B6-913B-47CE-9CEB-11C51B4E1205}
+		{43BD3BBD-1531-4D8F-9C08-E1CD544AB2CD} = {43BD3BBD-1531-4D8F-9C08-E1CD544AB2CD}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NzbDrone.Core", "NzbDrone.Core\NzbDrone.Core.csproj", "{FF5EE3B6-913B-47CE-9CEB-11C51B4E1205}"
 EndProject

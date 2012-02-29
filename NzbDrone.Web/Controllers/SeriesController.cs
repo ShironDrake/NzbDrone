@@ -72,6 +72,7 @@ namespace NzbDrone.Web.Controllers
             series.Monitored = seriesModel.Monitored;
             series.SeasonFolder = seriesModel.SeasonFolder;
             series.QualityProfileId = seriesModel.QualityProfileId;
+            series.AbsoluteNumbering = seriesModel.AbsoluteNumbering;
             series.Path = seriesModel.Path;
             series.BacklogSetting = (BacklogSettingType)seriesModel.BacklogSetting;
 
@@ -189,6 +190,7 @@ namespace NzbDrone.Web.Controllers
                                                         TitleSorter = SortHelper.SkipArticles(s.Title),
                                                         AirsDayOfWeek = s.AirsDayOfWeek.ToString(),
                                                         Monitored = s.Monitored,
+                                                        AbsoluteNumbering = s.AbsoluteNumbering,
                                                         Overview = s.Overview,
                                                         Path = s.Path,
                                                         QualityProfileId = s.QualityProfileId,
@@ -215,7 +217,7 @@ namespace NzbDrone.Web.Controllers
                 var episodeFileId = 0;
                 var episodePath = String.Empty;
                 var episodeQuality = "N/A";
-
+                
                 if (e.EpisodeFile != null)
                 {
                     episodePath = e.EpisodeFile.Path;
@@ -228,10 +230,13 @@ namespace NzbDrone.Web.Controllers
                 if (e.AirDate != null)
                     airDate = e.AirDate.Value.ToBestDateString();
 
+                int EpNumber =  _seriesProvider.GetSeries(e.SeriesId).AbsoluteNumbering ? e.AbsoluteNumber : e.EpisodeNumber;
+                EpNumber = EpNumber < 0 ? e.EpisodeNumber : EpNumber;
+
                 episodes.Add(new EpisodeModel
                                  {
                                      EpisodeId = e.EpisodeId,
-                                     EpisodeNumber = e.EpisodeNumber,
+                                     EpisodeNumber =EpNumber,
                                      SeasonNumber = e.SeasonNumber,
                                      Title = e.Title,
                                      Overview = e.Overview,

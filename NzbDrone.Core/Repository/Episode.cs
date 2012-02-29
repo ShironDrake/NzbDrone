@@ -16,6 +16,7 @@ namespace NzbDrone.Core.Repository
         public int EpisodeFileId { get; set; }
         public int SeasonNumber { get; set; }
         public int EpisodeNumber { get; set; }
+        public int AbsoluteNumber { get; set; }
         public string Title { get; set; }
         public DateTime? AirDate { get; set; }
 

@@ -47,6 +47,10 @@ namespace NzbDrone.Web.Models
         [Description("Should NzbDrone download episodes for this series?")]
         public bool Monitored { get; set; }
 
+        [DisplayName("Use Absolute Numbering")]
+        [Description("Should NzbDrone use absolute numbering")]
+        public bool AbsoluteNumbering { get; set; }
+
         [DisplayName("Backlog Setting")]
         [Description("Should NzbDrone search for missing episodes every 30 days?")]
         public int BacklogSetting { get; set; }

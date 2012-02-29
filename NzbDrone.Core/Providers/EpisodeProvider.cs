@@ -325,6 +325,7 @@ namespace NzbDrone.Core.Providers
                     episodeToUpdate.SeriesId = series.SeriesId;
                     episodeToUpdate.TvDbEpisodeId = episode.Id;
                     episodeToUpdate.EpisodeNumber = episode.EpisodeNumber;
+                    episodeToUpdate.AbsoluteNumber = episode.AbsoluteNumber;
                     episodeToUpdate.SeasonNumber = episode.SeasonNumber;
                     episodeToUpdate.Title = episode.EpisodeName;
                     episodeToUpdate.Overview = episode.Overview;

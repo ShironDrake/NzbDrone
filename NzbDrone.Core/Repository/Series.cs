@@ -30,6 +30,8 @@ namespace NzbDrone.Core.Repository
 
         public bool Monitored { get; set; }
 
+        public bool AbsoluteNumbering { get; set; }
+
         public virtual int QualityProfileId { get; set; }
 
         public bool SeasonFolder { get; set; }
