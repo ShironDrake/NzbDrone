@@ -124,7 +124,7 @@ namespace NzbDrone.Web.Controllers
             if (seriesId == 0 || String.IsNullOrWhiteSpace(seriesName))
                 return JsonNotificationResult.Error("Add Existing series failed.", "Invalid Series information");
 
-            _seriesProvider.AddSeries(path, seriesId, qualityProfileId);
+            _seriesProvider.AddSeries(seriesName,path, seriesId, qualityProfileId);
             ScanNewSeries();
 
             return JsonNotificationResult.Info(seriesName, "Was added successfully");
@@ -177,7 +177,8 @@ namespace NzbDrone.Web.Controllers
             var tvDbResults = _tvDbProvider.SearchSeries(term).Select(r => new TvDbSearchResultModel
                     {
                         Id = r.Id,
-                        Title = r.FirstAired.Year > 1900 
+                        Title = r.SeriesName,
+                        DisplayedTitle = r.FirstAired.Year > 1900 && !r.SeriesName.EndsWith("(" + r.FirstAired.Year + ")")
                                                         ?string.Format("{0} ({1})", r.SeriesName, r.FirstAired.Year)
                                                         :r.SeriesName,
                         Banner = r.Banner.BannerPath
