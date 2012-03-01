@@ -3,40 +3,21 @@ using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using NzbDrone.Common.Contract;
-using NzbDrone.Services.Service.Controllers;
 using NzbDrone.Services.Service.Repository.Reporting;
 using NzbDrone.Services.Tests.Framework;
 
-namespace NzbDrone.Services.Tests
+namespace NzbDrone.Services.Tests.ExceptionControllerTests
 {
     [TestFixture]
-    public class ReportingControllerFixture : ServicesTestBase
+    public class ReportNewFixture : ServicesTestBase
     {
-        [SetUp]
-        public void Setup()
-        {
-            WithRealDb();
-            Mocker.Resolve<ExceptionController>();
-        }
 
-        ReportingController Controller
+        Service.Controllers.ExceptionController Controller
         {
             get
             {
-                return Mocker.Resolve<ReportingController>();
+                return Mocker.Resolve<Service.Controllers.ExceptionController>();
             }
-        }
-
-
-        private static ParseErrorReport CreateParseErrorReport()
-        {
-            return new ParseErrorReport
-                                   {
-                                       IsProduction = true,
-                                       Title = "MyTitle",
-                                       Version = "1.1.2.323456",
-                                       UGuid = Guid.NewGuid()
-                                   };
         }
 
         private static ExceptionReport CreateExceptionReport()
@@ -96,50 +77,137 @@ namespace NzbDrone.Services.Tests
 
 
         [Test]
-        public void parse_report_should_be_saved()
+        public void ReportNew_should_save_instance()
         {
-            var parseReport = CreateParseErrorReport();
+            var exceptionReport = CreateExceptionReport();
 
+            WithRealDb();
 
-            Controller.ParseError(parseReport);
+            Controller.ReportNew(exceptionReport);
 
-            var reports = Db.Fetch<ParseErrorRow>();
-            reports.Should().HaveCount(1);
-            reports.Single().Title.Should().Be(parseReport.Title);
-            reports.Single().IsProduction.Should().Be(parseReport.IsProduction);
-            reports.Single().Version.Should().Be(parseReport.Version);
-            reports.Single().Timestamp.Should().BeWithin(TimeSpan.FromSeconds(4)).Before(DateTime.Now);
-            reports.Single().UGuid.Should().Be(parseReport.UGuid);
+            var exceptionInstance = Db.Fetch<ExceptionInstance>();
+            exceptionInstance.Should().HaveCount(1);
+            exceptionInstance.Single().Id.Should().BeGreaterThan(0);
+            exceptionInstance.Single().ExceptionHash.Should().NotBeBlank();
+            exceptionInstance.Single().IsProduction.Should().Be(exceptionReport.IsProduction);
+            exceptionInstance.Single().Timestamp.Should().BeWithin(TimeSpan.FromSeconds(4)).Before(DateTime.Now);
+            exceptionInstance.Single().LogMessage.Should().Be(exceptionReport.LogMessage);
+            exceptionInstance.Single().UGuid.Should().Be(exceptionReport.UGuid);
         }
 
         [Test]
-        public void parse_report_should_save_report_if_title_doesnt_exist()
+        public void ReportNew_should_save_detail()
         {
-            var parseReport1 = CreateParseErrorReport();
-            var parseReport2 = CreateParseErrorReport();
+            var exceptionReport = CreateExceptionReport();
 
-            parseReport1.Title = Guid.NewGuid().ToString();
+            WithRealDb();
 
+            Controller.ReportNew(exceptionReport);
 
-            Controller.ParseError(parseReport1);
-            Controller.ParseError(parseReport2);
-
-            var reports = Db.Fetch<ParseErrorRow>();
-            reports.Should().HaveCount(2);
+            var exceptionDetails = Db.Fetch<ExceptionDetail>();
+            exceptionDetails.Should().HaveCount(1);
+            exceptionDetails.Single().Hash.Should().NotBeBlank();
+            exceptionDetails.Single().Logger.Should().Be(exceptionReport.Logger);
+            exceptionDetails.Single().Type.Should().Be(exceptionReport.Type);
+            exceptionDetails.Single().String.Should().Be(exceptionReport.String);
+            exceptionDetails.Single().Version.Should().Be(exceptionReport.Version);
         }
 
         [Test]
-        public void parse_report_should_not_save_report_if_title_exist()
+        public void ReportNew_should_return_exception_id()
         {
-            var parseReport1 = CreateParseErrorReport();
-            var parseReport2 = CreateParseErrorReport();
+            var exceptionReport = CreateExceptionReport();
+
+            WithRealDb();
+
+            var response = Controller.ReportNew(exceptionReport);
+
+            response.Data.Should().BeOfType<ExceptionReportResponse>();
+            ((ExceptionReportResponse)response.Data).ExceptionHash.Should().NotBeBlank();
+        }
 
 
-            Controller.ParseError(parseReport1);
-            Controller.ParseError(parseReport2);
+        [Test]
+        public void Reporting_exception_more_than_once_should_create_single_detail_with_multiple_instances()
+        {
+            var exceptionReport = CreateExceptionReport();
 
-            var reports = Db.Fetch<ParseErrorRow>();
-            reports.Should().HaveCount(1);
+            WithRealDb();
+
+            var response1 = Controller.ReportNew(exceptionReport);
+            var response2 = Controller.ReportNew(exceptionReport);
+            var response3 = Controller.ReportNew(exceptionReport);
+
+            var detail = Db.Fetch<ExceptionDetail>();
+            var instances = Db.Fetch<ExceptionInstance>();
+
+            detail.Should().HaveCount(1);
+            instances.Should().HaveCount(3);
+
+            instances.Should().OnlyContain(c => c.ExceptionHash == detail.Single().Hash);
+        }
+
+        [Test]
+        public void Reporting_exception_with_diffrent_version_should_create_new_detail()
+        {
+            var exceptionReport1 = CreateExceptionReport();
+            exceptionReport1.Version = "0.1.1";
+
+            var exceptionReport2 = CreateExceptionReport();
+            exceptionReport2.Version = "0.2.1";
+
+            WithRealDb();
+
+            Controller.ReportNew(exceptionReport1);
+            Controller.ReportNew(exceptionReport2);
+
+            var detail = Db.Fetch<ExceptionDetail>();
+            var instances = Db.Fetch<ExceptionInstance>();
+
+            detail.Should().HaveCount(2);
+            instances.Should().HaveCount(2);
+        }
+
+        [Test]
+        public void Reporting_exception_with_diffrent_strting_should_create_new_detail()
+        {
+            var exceptionReport1 = CreateExceptionReport();
+            exceptionReport1.String = "Error1";
+
+            var exceptionReport2 = CreateExceptionReport();
+            exceptionReport2.String = "Error2";
+
+            WithRealDb();
+
+            Controller.ReportNew(exceptionReport1);
+            Controller.ReportNew(exceptionReport2);
+
+            var detail = Db.Fetch<ExceptionDetail>();
+            var instances = Db.Fetch<ExceptionInstance>();
+
+            detail.Should().HaveCount(2);
+            instances.Should().HaveCount(2);
+        }
+
+        [Test]
+        public void Reporting_exception_with_diffrent_logger_should_create_new_detail()
+        {
+            var exceptionReport1 = CreateExceptionReport();
+            exceptionReport1.Logger = "logger1";
+
+            var exceptionReport2 = CreateExceptionReport();
+            exceptionReport2.Logger = "logger2";
+
+            WithRealDb();
+
+            Controller.ReportNew(exceptionReport1);
+            Controller.ReportNew(exceptionReport2);
+
+            var detail = Db.Fetch<ExceptionDetail>();
+            var instances = Db.Fetch<ExceptionInstance>();
+
+            detail.Should().HaveCount(2);
+            instances.Should().HaveCount(2);
         }
     }
 }
