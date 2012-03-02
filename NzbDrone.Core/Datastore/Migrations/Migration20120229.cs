@@ -10,8 +10,8 @@ namespace NzbDrone.Core.Datastore.Migrations
     {
         protected override void MainDbUpgrade()
         {
-            Database.AddColumn("Series", "AbsoluteNumbering", DbType.Boolean, ColumnProperty.None);
-            Database.AddColumn("Episodes", "AbsoluteNumber", DbType.Int32, ColumnProperty.None);
+            Database.AddColumn("Series", "AbsoluteNumbering", DbType.Boolean, ColumnProperty.None); //AnimeB
+            Database.AddColumn("Episodes", "AbsoluteNumber", DbType.Int32, ColumnProperty.None); //AnimeB
         }
     }
 }

@@ -174,10 +174,54 @@ namespace NzbDrone.Core.Providers
             return false;
         }
 
+        public List<EpisodeParseResult> PerformSearchAbsolute(ProgressNotification notification, Series series, int seasonNumber, IList<Episode> episodes)
+        {
+
+            var indexers = _indexerProvider.GetEnabledIndexers();
+            var reports = new List<EpisodeParseResult>();
+
+            var title = _sceneMappingProvider.GetSceneName(series.SeriesId);
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                title = series.Title;
+            }
+
+            foreach (var indexer in indexers)
+            {
+                try
+                {
+                    if (episodes == null)
+                    {
+                        //fetch whole season
+                        foreach (Episode ep in _episodeProvider.GetEpisodesBySeason(series.SeriesId,seasonNumber))
+                            reports.AddRange(indexer.FetchAbsoluteEpisode(title,ep.AbsoluteNumber));
+                    }
+
+                    //Treat as list of episodes
+                    else
+                    {
+                        foreach (Episode ep in episodes)
+                            reports.AddRange(indexer.FetchAbsoluteEpisode(title, ep.AbsoluteNumber));
+                    }
+                }
+
+                catch (Exception e)
+                {
+                    Logger.ErrorException("An error has occurred while fetching items from " + indexer.Name, e);
+                }
+            }
+
+            return reports;
+        }
+
         public List<EpisodeParseResult> PerformSearch(ProgressNotification notification, Series series, int seasonNumber, IList<Episode> episodes = null)
         {
             //If single episode, do a single episode search, if full season then do a full season search, otherwise, do a partial search
-
+            if (series.AbsoluteNumbering)
+            {
+                return PerformSearchAbsolute(notification, series, seasonNumber, episodes);
+            }
             var indexers = _indexerProvider.GetEnabledIndexers();
             var reports = new List<EpisodeParseResult>();
 

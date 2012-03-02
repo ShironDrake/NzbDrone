@@ -108,5 +108,10 @@ namespace NzbDrone.Core.Providers.Indexer
             
             return currentResult;
         }
+
+        protected override IList<string> GetAbsoluteEpisodeUrls(string seriesTitle, int episodeNumber)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -26,9 +26,13 @@ namespace NzbDrone.Core.Providers.Indexer
                 return new[]
                            {
                                string.Format(
-                                   "http://rss.nzbmatrix.com/rss.php?page=download&username={0}&apikey={1}&subcat=6,41&english=1&scenename=1&num=50",
+                                   "http://rss.nzbmatrix.com/rss.php?page=download&username={0}&apikey={1}&subcat=41,6&english=1&scenename=1&num=50",
                                    _configProvider.NzbMatrixUsername,
-                                   _configProvider.NzbMatrixApiKey)
+                                   _configProvider.NzbMatrixApiKey),
+                               string.Format(
+                                   "http://rss.nzbmatrix.com/rss.php?page=download&username={0}&apikey={1}&subcat=28&english=0&scenename=1&num=50",
+                                   _configProvider.NzbMatrixUsername,
+                                   _configProvider.NzbMatrixApiKey)//Animes dont need to be English
                            };
             }
         }
@@ -49,6 +53,18 @@ namespace NzbDrone.Core.Providers.Indexer
             foreach (var url in Urls)
             {
                 searchUrls.Add(String.Format("{0}&term={1}+s{2:00}e{3:00}", url, seriesTitle, seasonNumber, episodeNumber));
+            }
+
+            return searchUrls;
+        }
+
+        protected override IList<string> GetAbsoluteEpisodeUrls(string seriesTitle, int episodeNumber)
+        {
+            var searchUrls = new List<String>();
+
+            foreach (var url in Urls)
+            {
+                searchUrls.Add(String.Format("{0}&term={1}+{2}", url, seriesTitle, episodeNumber));
             }
 
             return searchUrls;
