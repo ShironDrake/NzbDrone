@@ -59,6 +59,35 @@ namespace NzbDrone.Core.Providers
             return episode;
         }
 
+        /// <summary>
+        /// Fetches a <see cref="Episode"/> from the database.
+        /// </summary>
+        /// <param name="seriesId">The Id of the series the episode belongs to</param>
+        /// <param name="episodeNumber">The absolute number of the episode. Disregarding the seasons.</param>
+        /// <returns>A <see cref="Episode"/> object from the DB</returns>
+        public virtual Episode GetEpisode(int seriesId, int absEpisodeNumber)
+        {
+            var episode = _database.Fetch<Episode, Series, EpisodeFile>(@"SELECT * FROM Episodes 
+                                                            INNER JOIN Series ON Episodes.SeriesId = Series.SeriesId
+                                                            LEFT JOIN EpisodeFiles ON Episodes.EpisodeFileId = EpisodeFiles.EpisodeFileId
+                                                            WHERE Episodes.SeriesId = @0 AND Episodes.AbsoluteNumber = @1", seriesId, absEpisodeNumber).SingleOrDefault();
+
+            if (episode == null)
+                return null;
+
+            if (episode.EpisodeFileId == 0)
+                episode.EpisodeFile = null;
+
+            return episode;
+        }
+
+        /// <summary>
+        /// Fetches a <see cref="Episode"/> from the database.
+        /// </summary>
+        /// <param name="seriesId">The Id of the series the episode belongs to</param>
+        /// <param name="seasonNumber">The season of the episode</param>
+        /// <param name="episodeNumber">The number of the episode</param>
+        /// <returns>A <see cref="Episode"/> object from the DB</returns>
         public virtual Episode GetEpisode(int seriesId, int seasonNumber, int episodeNumber)
         {
             var episode = _database.Fetch<Episode, Series, EpisodeFile>(@"SELECT * FROM Episodes 
@@ -75,6 +104,12 @@ namespace NzbDrone.Core.Providers
             return episode;
         }
 
+        /// <summary>
+        /// Fetches a <see cref="Episode"/> from the database.
+        /// </summary>
+        /// <param name="seriesId">The Id of the series the episode belongs to</param>
+        /// <param name="date">The airdate of the episode</param>
+        /// <returns>A <see cref="Episode"/> object from the DB</returns>
         public virtual Episode GetEpisode(int seriesId, DateTime date)
         {
             var episode = _database.Fetch<Episode, Series, EpisodeFile>(@"SELECT * FROM Episodes
@@ -91,6 +126,12 @@ namespace NzbDrone.Core.Providers
             return episode;
         }
 
+        /// <summary>
+        /// Fetches all episodes of a series from the database. 
+        /// </summary>
+        /// <param name="seriesId">The Id of the series the episode belongs to</param>
+        /// <param name="date">The airdate of the episode</param>
+        /// <returns>A <see cref="IList"/> of <see cref="Episode"/> objects from the DB</returns>
         public virtual IList<Episode> GetEpisodeBySeries(long seriesId)
         {
             var episodes = _database.Fetch<Episode, Series, EpisodeFile>(@"SELECT * FROM Episodes
@@ -107,6 +148,12 @@ namespace NzbDrone.Core.Providers
             return episodes;
         }
 
+        /// <summary>
+        /// Fetches all episodes of one season of a series from the database.
+        /// </summary>
+        /// <param name="seriesId">The id of the series</param>
+        /// <param name="seasonNumber">The number of the season</param>
+        /// <returns>A <see cref="IList"/> of <see cref="Episode"/> objects from the DB</returns>
         public virtual IList<Episode> GetEpisodesBySeason(long seriesId, int seasonNumber)
         {
             var episodes = _database.Fetch<Episode, Series, EpisodeFile>(@"SELECT * FROM Episodes
@@ -193,7 +240,11 @@ namespace NzbDrone.Core.Providers
 
             foreach (var episodeNumber in parseResult.EpisodeNumbers)
             {
-                var episodeInfo = GetEpisode(parseResult.Series.SeriesId, parseResult.SeasonNumber, episodeNumber);
+                Episode episodeInfo;
+                if (parseResult.Series.AbsoluteNumbering)
+                    episodeInfo = GetEpisode(parseResult.Series.SeriesId, episodeNumber);
+                else
+                    episodeInfo = GetEpisode(parseResult.Series.SeriesId, parseResult.SeasonNumber, episodeNumber);
                 if (episodeInfo == null && parseResult.AirDate != null)
                 {
                     episodeInfo = GetEpisode(parseResult.Series.SeriesId, parseResult.AirDate.Value);

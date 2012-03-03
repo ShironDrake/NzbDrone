@@ -55,7 +55,7 @@ namespace NzbDrone.Core.Providers
                 updatePackage.FileName = match.Groups["filename"].Value;
                 updatePackage.Url = updateUrl + updatePackage.FileName;
                 updatePackage.Version = new Version(match.Groups["version"].Value);
-                updateList.Add(updatePackage);
+                //updateList.Add(updatePackage);
             }
 
             return updateList;
