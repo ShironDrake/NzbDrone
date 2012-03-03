@@ -107,6 +107,7 @@ namespace NzbDrone.Core.Providers
                 return seasonResult;
             }
 
+            // Handle Daily episodes
             if (parseResult.Series.IsDaily)
             {
                 var dailyResult = String.Format("{0} - {1:yyyy-MM-dd} - {2} [{3}]", seriesTitle,
@@ -121,13 +122,30 @@ namespace NzbDrone.Core.Providers
             //Show Name - 1x01-1x02 - Episode Name
             //Show Name - 1x01 - Episode Name
             var episodeString = new List<String>();
+            string epNumberString;
+
+            //Handle absolute episode numbers
+            if (parseResult.Series.AbsoluteNumbering)
+            {
+                foreach (var episode in parseResult.EpisodeNumbers)
+                    episodeString.Add(String.Format("{0}", episode));
+                epNumberString = String.Join("-", episodeString);
+
+                var seasonResult = String.Format("{0} - {1} [{2}]", seriesTitle, epNumberString, parseResult.Quality.QualityType);
+
+                if (parseResult.Quality.Proper)
+                    seasonResult += " [Proper]";
+
+                return seasonResult;
+            }
 
             foreach (var episode in parseResult.EpisodeNumbers)
             {
                 episodeString.Add(String.Format("{0}x{1}", parseResult.SeasonNumber, episode));
             }
 
-            var epNumberString = String.Join("-", episodeString);
+
+            epNumberString = String.Join("-", episodeString);
 
             var result = String.Format("{0} - {1} - {2} [{3}]", seriesTitle, epNumberString, parseResult.EpisodeTitle, parseResult.Quality.QualityType);
 

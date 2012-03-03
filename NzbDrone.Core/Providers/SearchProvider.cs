@@ -152,8 +152,8 @@ namespace NzbDrone.Core.Providers
 
             Logger.Debug("Finished searching all indexers. Total {0}", reports.Count);
             notification.CurrentMessage = "Processing search results";
-
-            if (!episode.Series.IsDaily && ProcessSearchResults(notification, reports, episode.Series, episode.SeasonNumber, episode.EpisodeNumber).Count == 1)
+            int EpNumber = episode.Series.AbsoluteNumbering ? episode.AbsoluteNumber : episode.EpisodeNumber;
+            if (!episode.Series.IsDaily && ProcessSearchResults(notification, reports, episode.Series, episode.SeasonNumber,EpNumber).Count == 1)
                 return true;
 
             if (episode.Series.IsDaily && ProcessSearchResults(notification, reports, episode.Series, episode.AirDate.Value))
@@ -292,7 +292,7 @@ namespace NzbDrone.Core.Providers
                     }
 
                     //If SeasonNumber doesn't match or episode is not in the in the list in the parse result, skip the report.
-                    if (episodeParseResult.SeasonNumber != seasonNumber)
+                    if (episodeParseResult.SeasonNumber != seasonNumber && !series.AbsoluteNumbering)
                     {
                         Logger.Trace("Season number does not match searched season number, skipping.");
                         continue;
