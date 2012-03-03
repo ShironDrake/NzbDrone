@@ -145,6 +145,7 @@ namespace NzbDrone.Core.Providers
                 return null;
             }
 
+
             var episodeFile = new EpisodeFile();
             episodeFile.DateAdded = DateTime.Now;
             episodeFile.SeriesId = series.SeriesId;
@@ -153,6 +154,13 @@ namespace NzbDrone.Core.Providers
             episodeFile.Quality = parseResult.Quality.QualityType;
             episodeFile.Proper = parseResult.Quality.Proper;
             episodeFile.SeasonNumber = parseResult.SeasonNumber;
+
+            if (parseResult.Series.AbsoluteNumbering)
+            {
+                episodeFile.SeasonNumber = episodes.First().SeasonNumber;
+
+            }
+
             var fileId = _mediaFileProvider.Add(episodeFile);
 
             //Link file to all episodes

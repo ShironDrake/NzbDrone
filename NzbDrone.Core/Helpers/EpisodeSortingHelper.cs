@@ -108,6 +108,17 @@ namespace NzbDrone.Core.Helpers
             return NumberStyles.Single(s => s.Id == id);
         }
 
+        public static EpisodeSortingType GetAbsoluteNumberStyle(int id)
+        {
+            return new EpisodeSortingType
+            {
+                Id = 0,
+                Name = "5",
+                Pattern = "%0e",
+                EpisodeSeparator = ""
+            };
+        }
+
         public static EpisodeSortingType GetMultiEpisodeStyle(int id)
         {
             return MultiEpisodeStyles.Single(s => s.Id == id);

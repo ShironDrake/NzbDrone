@@ -53,12 +53,12 @@ namespace NzbDrone.Core
                                     new Regex(@"^(?<title>.+?)(?:\W+(?:(?:Part\W?|(?<!\d+\W+)e)(?<episode>\d{1,2}(?!\d+)))+)\W?(?!\\)",
                                         RegexOptions.IgnoreCase | RegexOptions.Compiled),
 
-                                    //Support absolute episode naming
-                                    new Regex(@"^(?<title>.+?)?(?:\W?(?<episode>\d+(?!p|i)))+\W?(?!\\)",
-                                        RegexOptions.IgnoreCase | RegexOptions.Compiled),
-
                                         //Supports Season only releases
                                     new Regex(@"^(?<title>.+?)\W(?:S|Season)\W?(?<season>\d{1,2}(?!\d+))\W?(?<extras>EXTRAS|SUBPACK)?(?!\\)",
+                                        RegexOptions.IgnoreCase | RegexOptions.Compiled),
+
+                                    //Support absolute episode naming 113, or E113
+                                    new Regex(@"^(?<title>.+?)?E?(?:\W?(?<episode>\d+(?!p|i)))+\W?(?!\\)",
                                         RegexOptions.IgnoreCase | RegexOptions.Compiled)
                                 };
 

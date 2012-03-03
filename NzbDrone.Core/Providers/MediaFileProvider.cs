@@ -142,7 +142,8 @@ namespace NzbDrone.Core.Providers
             var sortedEpisodes = episodes.OrderBy(e => e.EpisodeNumber);
 
             var separatorStyle = EpisodeSortingHelper.GetSeparatorStyle(_configProvider.SortingSeparatorStyle);
-            var numberStyle = EpisodeSortingHelper.GetNumberStyle(_configProvider.SortingNumberStyle);
+            var numberStyle = sortedEpisodes.First().Series.AbsoluteNumbering ? 
+                EpisodeSortingHelper.GetAbsoluteNumberStyle(_configProvider.SortingNumberStyle) : EpisodeSortingHelper.GetNumberStyle(_configProvider.SortingNumberStyle);
 
             string episodeNames = sortedEpisodes.First().Title;
 
@@ -153,11 +154,12 @@ namespace NzbDrone.Core.Providers
                 result += seriesTitle + separatorStyle.Pattern;
             }
 
-            result += numberStyle.Pattern.Replace("%0e", String.Format("{0:00}", sortedEpisodes.First().EpisodeNumber));
+            int epnumber = sortedEpisodes.First().Series.AbsoluteNumbering ? sortedEpisodes.First().AbsoluteNumber : sortedEpisodes.First().EpisodeNumber;
+            result += numberStyle.Pattern.Replace("%0e", String.Format("{0:00}",epnumber));
 
             if (episodes.Count > 1)
             {
-                var multiEpisodeStyle = EpisodeSortingHelper.GetMultiEpisodeStyle(_configProvider.SortingMultiEpisodeStyle);
+                var multiEpisodeStyle = EpisodeSortingHelper.GetMultiEpisodeStyle( sortedEpisodes.First().Series.AbsoluteNumbering ? 0 : _configProvider.SortingMultiEpisodeStyle);
 
                 foreach (var episode in sortedEpisodes.Skip(1))
                 {
